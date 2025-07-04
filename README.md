@@ -259,6 +259,38 @@ async def check_orders():
 asyncio.run(check_orders())
 ```
 
+## Daftar Lengkap MCP Tools
+
+> Gunakan nama fungsi berikut saat memanggil dari kode atau editor (Claude Code, dsb).
+
+### Public (tanpa autentikasi)
+- `server_time()` – waktu server bursa
+- `pairs()` – daftar pair tersedia
+- `price_increments()` – kelipatan harga tiap pair
+- `summaries()` – ringkasan market seluruh pair
+- `ticker(pair_id="btcidr")` – harga terkini satu pair
+- `ticker_all()` – harga seluruh pair
+- `trades(pair_id="btcidr")` – transaksi terakhir
+
+### Private (butuh API key)
+- `get_info()` – info akun & saldo
+- `trans_history(start=None, end=None)` – histori transaksi
+- `trade(pair, type, price, idr=None, crypto=None)` – buat order beli/jual
+- `withdraw_coin(currency, amount, address, network=None, memo=None)` – tarik kripto
+- `withdraw_fee(currency, amount, address, network=None)` – estimasi fee tarik
+- `open_orders(pair=None)` – lihat order aktif
+- `cancel_order(order_id)` – batalkan order (ID numerik)
+- `cancel_by_client_order_id(client_order_id)` – batalkan order (client ID)
+- `order_history(pair=None, count=100, from_id=None, end_id=None, order="desc")` – histori order
+- `get_order(order_id)` – detail order berdasarkan ID
+- `get_order_by_client_order_id(client_order_id)` – detail order berdasarkan client ID
+- `price_increments()` – kelipatan harga (public tapi juga berguna)
+- `list_downline()` – daftar referral (partner)
+- `check_downline(username)` – cek apakah user downline
+- `create_voucher(amount, description=None)` – buat voucher (partner)
+
+---
+
 ## Daftar Pair ID yang Tersedia
 
 Berikut adalah beberapa contoh pair ID yang bisa digunakan:
