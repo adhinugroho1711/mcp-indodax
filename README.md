@@ -70,54 +70,6 @@ mcp_servers.json   # config runner (contoh)
 
 MIT 2025 Prihanantho Adhi Nugroho
 
-Server ini mengekspos seluruh *Private REST API* Indodax melalui protokol **Model Context Protocol (MCP)** sehingga dapat dipanggil dengan mudah oleh agen AI maupun aplikasi lain.
-
-## Fitur
-
-- Implementasi semua nilai `method` yang terdokumentasi (*getInfo*, *trade*, *withdrawCoin*, dll.)
-- Dibangun di atas [`fastmcp`](https://pypi.org/project/fastmcp/) (berbasis Starlette/FastAPI).
-- Request ter‐*sign* otomatis (HMAC-SHA512) sesuai spesifikasi Indodax.
-- Asynchronous (`httpx`) → performa optimal.
-
-## Instalasi
-
-```bash
-# Clone repo
-git clone https://github.com/adhinugroho1711/mcp-indodax.git
-cd mcp-indodax
-
-# Buat virtual environment (opsional tapi disarankan)
-python -m venv .venv
-source .venv/bin/activate
-
-# Install dependensi
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-## Konfigurasi
-
-Buat file `.env` (lihat contoh `.env.example` di bawah) berisi kredensial API Indodax Anda:
-
-```ini
-INDODAX_API_KEY=YOUR_API_KEY
-INDODAX_API_SECRET=YOUR_SECRET_KEY
-```
-
-> 📢 **Keamanan**: `.env` sudah di-ignore di `.gitignore` sehingga tidak akan ter‐push ke Git.
-
-## Menjalankan Server
-
-```bash
-python server.py
-```
-
-Server berjalan dengan transport `stdio` (mode bawaan FastMCP) — cocok untuk di-embed dalam agen AI.  Apabila ingin dijalankan sebagai HTTP server:
-
-```bash
-uvicorn server:mcp.app --host 0.0.0.0 --port 8000
-```
-
 ## Integrasi Editor / Claude Code
 
 Berikut cara mendaftarkan *MCP server* di beberapa editor / plugin umum. Pastikan `mcp_servers.json` Anda sudah berisi path absolut proyek.
