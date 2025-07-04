@@ -68,7 +68,6 @@ requirements.txt   # dependensi
 mcp_servers.json   # config runner (contoh)
 ```
 
-MIT 2025 Prihanantho Adhi Nugroho
 
 ## Integrasi Editor / Claude Code
 
