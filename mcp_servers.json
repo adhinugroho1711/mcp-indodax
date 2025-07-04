@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "indodax": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/adhinugroho/Documents/mcp-indodax",
+        "run",
+        "server.py"
+      ]
+    }
+  }
+}
