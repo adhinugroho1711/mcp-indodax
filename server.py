@@ -92,6 +92,56 @@ async def _private_post(payload: Dict[str, Any]) -> Dict[str, Any]:
         return response.json()
 
 # ---------------------------------------------------------------------------
+# Public REST API tools (no auth required)
+# ---------------------------------------------------------------------------
+
+PUBLIC_API_BASE = "https://indodax.com/api"
+
+async def _public_get(path: str) -> Dict[str, Any]:
+    url = f"{PUBLIC_API_BASE}/{path}"
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        resp = await client.get(url)
+        resp.raise_for_status()
+        return resp.json()
+
+@mcp.tool()
+async def server_time() -> Dict[str, Any]:
+    """Get server time (public endpoint)."""
+    return await _public_get("server_time")
+
+@mcp.tool()
+async def pairs() -> list[Dict[str, Any]]:
+    """Get list of available trading pairs."""
+    return await _public_get("pairs")
+
+@mcp.tool()
+async def price_increments() -> Dict[str, Any]:
+    """Get price increments per pair."""
+    return await _public_get("price_increments")
+
+@mcp.tool()
+async def summaries() -> Dict[str, Any]:
+    """Get summaries for all pairs."""
+    return await _public_get("summaries")
+
+@mcp.tool()
+async def ticker(pair_id: str | None = None) -> Dict[str, Any]:
+    """Get ticker for a pair (default btcidr)."""
+    path = f"ticker/{pair_id}" if pair_id else "ticker"
+    return await _public_get(path)
+
+@mcp.tool()
+async def ticker_all() -> Dict[str, Any]:
+    """Get ticker for all pairs."""
+    return await _public_get("ticker_all")
+
+@mcp.tool()
+async def trades(pair_id: str | None = None) -> list[Dict[str, Any]]:
+    """Get recent trades for pair (default btcidr)."""
+    path = f"trades/{pair_id}" if pair_id else "trades"
+    return await _public_get(path)
+
+# ---------------------------------------------------------------------------
 # MCP tools – one per documented method parameter
 # ---------------------------------------------------------------------------
 

@@ -110,19 +110,164 @@ uv --directory /ABSOLUTE/PATH/TO/mcp-indodax run server.py   # atau python serve
 
 ## Contoh Pemanggilan Alat
 
+### 1. Mengecek Harga Kripto
+```python
+import asyncio
+from server import ticker, ticker_all
+
+async def check_prices():
+    # Dapatkan semua ticker yang tersedia
+    all_tickers = await ticker_all()
+    
+    # Dapatkan harga BTC/IDR
+    btc_price = await ticker("btcidr")
+    print(f"Harga BTC/IDR: {int(btc_price['last']):,}")
+    
+    # Dapatkan harga XRP/IDR
+    xrp_price = await ticker("xrpidr")
+    print(f"Harga XRP/IDR: {int(xrp_price['last']):,}")
+
+asyncio.run(check_prices())
+```
+
+### 2. Mengecek Saldo dan Membuat Order
 ```python
 import asyncio, json
 from server import get_info, trade
 
 async def main():
+    # Dapatkan info akun
     info = await get_info()
-    print(json.dumps(info, indent=2))
-
+    print("Saldo IDR:", info['return']['balance']['idr'])
+    
     # Contoh order beli BTC senilai 50.000 IDR
     # res = await trade("btc_idr", "buy", price=500000000, idr=50000)
+    # print(json.dumps(res, indent=2))
 
 asyncio.run(main())
 ```
+
+## Cara Melakukan Trading
+
+### Daftar Perintah Trading
+
+| Perintah | Deskripsi | Contoh Penggunaan |
+|----------|-----------|-------------------|
+| `ticker("btcidr")` | Melihat harga BTC/IDR terkini | ```python\nfrom server import ticker\nimport asyncio\n\nasync def main():\n    price = await ticker("btcidr")\n    print(f"Harga BTC: {int(price['last']):,} IDR")\n\nasyncio.run(main())\n``` |
+| `trade("btcidr", "buy", idr=50000, price=500000000)` | Membeli kripto dengan IDR | ```python\nfrom server import trade\n\nasync def beli_btc():\n    await trade("btcidr", "buy", idr=50000, price=500000000)\n``` |
+| `trade("xrpidr", "sell", xrp=100, price=40000)` | Menjual kripto | ```python\nfrom server import trade\n\nasync def jual_xrp():\n    await trade("xrpidr", "sell", xrp=100, price=40000)\n``` |
+| `open_orders()` | Melihat daftar order aktif | ```python\nfrom server import open_orders\n\nasync def cek_order():\n    orders = await open_orders()\n    print(orders)\n``` |
+| `cancel_order(order_id=12345)` | Membatalkan order | ```python\nfrom server import cancel_order\n\nasync def batal_order():\n    await cancel_order(order_id=12345)\n``` |
+
+### 1. Membuat Order Beli/Jual
+
+```python
+import asyncio
+from server import trade, get_info
+
+async def place_order():
+    # Dapatkan info akun terlebih dahulu
+    info = await get_info()
+    print("Saldo IDR:", info['return']['balance']['idr'])
+    
+    # Contoh order beli BTC senilai 50.000 IDR
+    buy_order = await trade(
+        pair="btcidr",       # pair yang akan ditradingkan
+        type="buy",          # 'buy' atau 'sell'
+        price=500000000,     # harga per unit (dalam satuan terkecil)
+        idr=50000,          # jumlah IDR yang akan dibelanjakan
+        # atau gunakan parameter crypto untuk menentukan jumlah koin
+        # btc=0.001         # jumlah koin yang akan dibeli/dijual
+    )
+    print("Order Response:", buy_order)
+
+asyncio.run(place_order())
+```
+
+### 2. Membatalkan Order
+
+```python
+import asyncio
+from server import cancel_order, open_orders
+
+async def cancel_existing_order():
+    # Dapatkan daftar order terbuka
+    orders = await open_orders()
+    
+    if 'btc_idr' in orders and orders['btc_idr']:
+        # Batalkan order pertama yang ditemukan
+        order_id = orders['btc_idr'][0]['order_id']
+        result = await cancel_order(order_id=order_id)
+        print(f"Order {order_id} dibatalkan:", result)
+
+asyncio.run(cancel_existing_order())
+```
+
+### 2. Contoh Lengkap Trading
+
+```python
+import asyncio
+from server import ticker, trade, open_orders, cancel_order
+
+async def trading_bot():
+    # 1. Cek harga BTC/IDR
+    btc = await ticker("btcidr")
+    print(f"Harga BTC: {int(btc['last']):,} IDR")
+    
+    # 2. Buat order beli jika harga di bawah 500 juta
+    if btc['last'] < 500000000:
+        print("Harga menarik, membeli...")
+        order = await trade(
+            pair="btcidr",
+            type="buy",
+            price=btc['last'],
+            idr=100000  # Beli senilai 100 ribu IDR
+        )
+        print("Order berhasil:", order)
+    
+    # 3. Cek order aktif
+    print("\nOrder aktif:")
+    orders = await open_orders()
+    for pair, order_list in orders.items():
+        for order in order_list:
+            print(f"- {pair}: {order['type']} {order['order_btc']} BTC @ {int(order['price']):,}")
+
+# Jalankan bot
+try:
+    asyncio.run(trading_bot())
+except Exception as e:
+    print("Error:", e)
+```
+
+### 3. Memeriksa Order yang Aktif
+
+```python
+import asyncio
+from server import open_orders
+
+async def check_orders():
+    orders = await open_orders()
+    for pair, order_list in orders.items():
+        if order_list:
+            print(f"\nOrder aktif untuk {pair}:")
+            for order in order_list:
+                print(f"- ID: {order['order_id']}")
+                print(f"  Tipe: {order['type']}")
+                print(f"  Harga: {int(order['price']):,} IDR")
+                print(f"  Jumlah: {order.get('order_btc', order.get('order_eth', 'N/A'))}")
+
+asyncio.run(check_orders())
+```
+
+## Daftar Pair ID yang Tersedia
+
+Berikut adalah beberapa contoh pair ID yang bisa digunakan:
+- `btcidr` - Bitcoin (BTC) ke Rupiah
+- `ethidr` - Ethereum (ETH) ke Rupiah
+- `xrpidr` - XRP ke Rupiah
+- `adaidr` - Cardano (ADA) ke Rupiah
+- `bnbidr` - Binance Coin (BNB) ke Rupiah
+- `dogeidr` - Dogecoin (DOGE) ke Rupiah
 
 ## Struktur Proyek
 
